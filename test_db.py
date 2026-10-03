@@ -15,22 +15,21 @@ def get_connection():
     return connection
 
 
-connection = None
-
-try:
+def get_equipment():
     connection = get_connection()
-    print("Connected successfully!")
 
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT DATABASE();")
-        result = cursor.fetchone()
+    try:
+        with connection.cursor() as cursor:
+            sql = """SELECT equipment_id, item_name, quantity, location FROM equipment ORDER BY equipment_id"""
+            cursor.execute(sql)
+            records = cursor.fetchall()
 
-        print("Database:", result[0])
+            for record in records:
+                print(record)
 
-except pymysql.MySQLError as error:
-    print("Database error:", error)
-
-finally:
-    if connection is not None:
+    finally:
         connection.close()
         print("Connection closed.")
+
+
+get_equipment()
