@@ -41,10 +41,7 @@ def filter_by_location(location):
 
     try:
         with connection.cursor() as cursor:
-            sql = """SELECT equipment_id, item_name, quantity, location
-                     FROM equipment
-                     WHERE location = %s
-                     ORDER BY equipment_id;"""
+            sql = """SELECT equipment_id, item_name, quantity, location FROM equipment WHERE location = %s ORDER BY equipment_id;"""
             cursor.execute(sql, (location,))
             records = cursor.fetchall()
             return records
@@ -53,6 +50,7 @@ def filter_by_location(location):
         connection.close()
         print("Connection closed.")
 
+# Main Program Execution
 
 location = input("Enter Location (Lab A / Lab B / Stockroom): ").strip()
 
@@ -74,4 +72,61 @@ try:
 
 except pymysql.MySQLError as error:
     print("Database error:", error)
+
+
+
+# ACTIVITY 4
+
+def add_equipment():
+    connection = get_connection()
+
+    try:
+        equipment_id = int(input("Enter Equipment ID: "))
+        item_name = input("Enter Item Name: ").strip()
+        category = input("Enter Category: ").strip()
+        quantity = int(input("Enter Quantity: "))
+        unit_price = float(input("Enter Unit Price: "))
+        location = input("Enter Location (Lab A / Lab B / Stockroom): ").strip()
+        note = input("Enter Note: ").strip()
+
+        if note == "":
+            note = None
+
+        with connection.cursor() as cursor:
+            sql = """
+                INSERT INTO equipment
+                (equipment_id, item_name, category, quantity, unit_price, location, note)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+
+            cursor.execute(
+                sql,
+                (
+                    equipment_id,
+                    item_name,
+                    category,
+                    quantity,
+                    unit_price,
+                    location,
+                    note
+                )
+            )
+
+            connection.commit()
+
+            print("\nEquipment added successfully.")
+
+    except ValueError:
+        print("Invalid input. Equipment ID and Quantity must be whole numbers, and Unit Price must be a number.")
+
+    except pymysql.MySQLError as error:
+        connection.rollback()
+        print("Database error:", error)
+
+    finally:
+        connection.close()
+        print("Connection closed.")
+
+
+add_equipment()
 
